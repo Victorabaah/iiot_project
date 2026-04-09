@@ -10,4 +10,4 @@ data:
   mqttTopic: "factory/default/telemetry"
 
   # Default group; overlays replace this per environment
-  deviceGroup: "default-group"
+  deviceGroup: "home-lab-staging"

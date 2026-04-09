@@ -4,4 +4,5 @@ metadata:
   name: edge-app-config
 data:
   mqttTopic: "factory/staging/telemetry"
-  deviceGroup: "staging-line"
+  deviceGroup: "home-lab-staging"
+

@@ -12,6 +12,6 @@ patchesStrategicMerge:
   - configmap-patch.yaml
 
 images:
-  - name: ghcr.io/your-org/your-repo/edge-app
+  - name: ghcr.io/victorabaah/edge-app:v1
     # CI/CD updates this tag for approved production promotion
     newTag: latest
