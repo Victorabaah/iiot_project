@@ -1,0 +1,64 @@
+name: Build and Promote Edge App
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: victorabaah/edge-app
+  MANIFEST_REPO: Victorabaah/edge-manifests
+
+jobs:
+  build-push-update-manifest:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout application repo
+        uses: actions/checkout@v4
+
+      - name: Set image variables
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "IMAGE_URI=${REGISTRY}/${IMAGE_NAME}:${GITHUB_SHA}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t $IMAGE_URI ./edge-app
+
+      - name: Push Docker image
+        run: |
+          docker push $IMAGE_URI
+
+      - name: Checkout manifest repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.MANIFEST_REPO }}
+          token: ${{ secrets.MANIFEST_REPO_TOKEN }}
+          path: edge-manifests
+
+      - name: Update staging image tag
+        run: |
+          cd edge-manifests
+          sed -i 's/newTag:.*/newTag: '"${IMAGE_TAG}"'/' overlays/staging/kustomization.yaml
+
+      - name: Commit and push manifest change
+        run: |
+          cd edge-manifests
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add overlays/staging/kustomization.yaml
+          git commit -m "Promote edge-app to ${IMAGE_TAG}" || echo "No changes to commit"
+          git push
