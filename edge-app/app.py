@@ -4,7 +4,7 @@ import socket
 
 app = Flask(__name__)
 
-APP_VERSION = os.getenv("APP_VERSION", "v2")
+APP_VERSION = os.getenv("APP_VERSION", "v1")
 APP_ENV = os.getenv("APP_ENV", "development")
 DEVICE_GROUP = os.getenv("DEVICE_GROUP", "default-group")
 MQTT_BROKER_URL = os.getenv("MQTT_BROKER_URL", "tcp://localhost:1883")
