@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-app-config
+data:
+  # Edit for your actual local/edge MQTT broker
+  mqttBrokerUrl: "tcp://mosquitto.edge.svc.cluster.local:1883"
+
+  # Default topic; overlays replace this per environment
+  mqttTopic: "factory/default/telemetry"
+
+  # Default group; overlays replace this per environment
+  deviceGroup: "default-group"

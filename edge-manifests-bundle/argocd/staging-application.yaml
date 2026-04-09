@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: edge-app-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: edge-app
+    environment: staging
+spec:
+  project: edge-platform
+
+  source:
+    # Edit to your actual GitOps repo
+    repoURL: https://github.com/your-org/edge-manifests.git
+    targetRevision: main
+    path: overlays/staging
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: edge-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

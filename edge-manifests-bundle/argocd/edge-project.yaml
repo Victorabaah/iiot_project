@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: edge-platform
+  namespace: argocd
+spec:
+  description: Project for IIoT edge workloads
+
+  # Edit if your GitOps repo URL differs
+  sourceRepos:
+    - https://github.com/your-org/edge-manifests.git
+
+  destinations:
+    - namespace: edge-system
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

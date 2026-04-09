@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-app
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: edge-app
+          env:
+            - name: APP_ENV
+              value: "production"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      # Edit to match your production edge node labels and taints
+      nodeSelector:
+        node-role.kubernetes.io/edge: "true"
+      tolerations:
+        - key: "edge"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"

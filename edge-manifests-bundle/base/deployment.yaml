@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-app
+  template:
+    metadata:
+      labels:
+        app: edge-app
+    spec:
+      serviceAccountName: edge-app-sa
+      containers:
+        - name: edge-app
+
+          # CI/CD or overlay image updates will target this image name
+          # Replace with your actual registry/repo/image path
+          image: ghcr.io/victorabaah/edge-app:v1
+
+          # IfNotPresent is often safer for edge/offline-friendly environments
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              # Change if your app listens on another port
+              containerPort: 8080
+
+          env:
+            - name: APP_ENV
+              value: "base"
+
+            - name: DEVICE_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: edge-app-config
+                  key: deviceGroup
+
+            - name: MQTT_BROKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: edge-app-config
+                  key: mqttBrokerUrl
+
+            - name: MQTT_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: edge-app-config
+                  key: mqttTopic
+
+            # In production, use External Secrets / Sealed Secrets / Vault
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: edge-app-secret
+                  key: apiToken
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              # Change if your app uses a different readiness endpoint
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              # Change if your app uses a different liveness endpoint
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-app
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: edge-app
+          env:
+            - name: APP_ENV
+              value: "staging"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "192Mi"
+      # Edit labels/taints to match your actual edge node scheduling model
+      nodeSelector:
+        node-role.kubernetes.io/edge: "true"
+      tolerations:
+        - key: "edge"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
